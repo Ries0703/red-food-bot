@@ -9,6 +9,7 @@ import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 
+import java.net.MalformedURLException;
 import java.util.Map;
 
 @Service
@@ -36,10 +37,18 @@ public class FacebookServiceImpl implements FacebookService {
     public void sendResponseToUser(String senderPsId, Map<String, Object> response) {
         try {
             webClient.post()
-                     .uri(uriBuilder -> uriBuilder.host(facebookApiHost)
-                                                  .path(facebookMessageUri)
-                                                  .queryParam("access_token", pageAccessToken)
-                                                  .build())
+                     .uri(uriBuilder -> {
+                         var build = uriBuilder.host(facebookApiHost)
+                                               .path(facebookMessageUri)
+                                               .queryParam("access_token", pageAccessToken)
+                                               .build();
+                         try {
+                             logger.info(build.toURL().toExternalForm());
+                         } catch (MalformedURLException e) {
+                             throw new RuntimeException(e);
+                         }
+                         return build;
+                     })
                      .body(BodyInserters.fromValue(Map.of("recipient", Map.of("id", senderPsId), "messaging_type", "RESPONSE", "message", response)))
                      .retrieve()
                      .bodyToMono(Void.class)

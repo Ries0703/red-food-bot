@@ -1,5 +1,6 @@
 package com.ries.redfoodbot.service.impl;
 
+import com.google.gson.annotations.JsonAdapter;
 import com.ries.redfoodbot.service.FacebookService;
 import com.ries.redfoodbot.service.WebHookService;
 import lombok.RequiredArgsConstructor;
@@ -46,7 +47,7 @@ public class WebHookServiceImpl implements WebHookService {
                 if (webhookEvent.containsKey("message")) {
                     // Construct the response message
                     Map<String, Object> responseMessage = Map.of("text", "Thank you for your message!");
-
+                    logger.info(responseMessage.toString());
                     // Call the Facebook service to send the response
                     facebookService.sendResponseToUser(senderPsId, responseMessage);
                 } else {
