@@ -24,6 +24,9 @@ public class FacebookServiceImpl implements FacebookService {
     @Value("${config.facebook_messenger_uri}")
     private String facebookMessageUri;
 
+    @Value("${config.facebook_api_host}")
+    private String facebookApiHost;
+
 
     public FacebookServiceImpl(WebClient.Builder webClientBuilder) {
         this.webClient = webClientBuilder.build();
@@ -33,7 +36,8 @@ public class FacebookServiceImpl implements FacebookService {
     public void sendResponseToUser(String senderPsId, Map<String, Object> response) {
         try {
             webClient.post()
-                     .uri(uriBuilder -> uriBuilder.path(facebookMessageUri)
+                     .uri(uriBuilder -> uriBuilder.host(facebookApiHost)
+                                                  .path(facebookMessageUri)
                                                   .queryParam("access_token", pageAccessToken)
                                                   .build())
                      .body(BodyInserters.fromValue(Map.of("recipient", Map.of("id", senderPsId), "messaging_type", "RESPONSE", "message", response)))
