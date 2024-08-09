@@ -18,23 +18,14 @@ public class FacebookServiceImpl implements FacebookService {
 
     private final WebClient webClient;
 
-    @Value("${config.facebook_api_base_url}")
-    private String facebookApiBaseUrl;
-
-    @Value("${config.facebook_api_version}")
-    private String facebookApiVersion;
-
-    @Value("${config.facebook_page_id}")
-    private String facebookPageId;
-
     @Value("${config.page_access_token}")
     private String pageAccessToken;
 
     public FacebookServiceImpl(WebClient.Builder webClientBuilder) {
-        this.webClient = webClientBuilder.baseUrl(String.format("%s/%s/%s",
-                                                 facebookApiBaseUrl,
-                                                 facebookApiVersion,
-                                                 facebookPageId))
+        String facebookApiBaseUrl = "https://graph.facebook.com";
+        String facebookApiVersion = "v20.0";
+        String facebookPageId = "me";
+        this.webClient = webClientBuilder.baseUrl(String.format("%s/%s/%s", facebookApiBaseUrl, facebookApiVersion, facebookPageId))
                                          .build();
     }
 
@@ -45,11 +36,7 @@ public class FacebookServiceImpl implements FacebookService {
                      .uri(uriBuilder -> uriBuilder.path("/message")
                                                   .queryParam("access_token", pageAccessToken)
                                                   .build())
-                     .body(BodyInserters.fromValue(Map.of(
-                             "recipient", Map.of("id", senderPsId),
-                             "messaging_type", "RESPONSE",
-                             "message", response
-                     )))
+                     .body(BodyInserters.fromValue(Map.of("recipient", Map.of("id", senderPsId), "messaging_type", "RESPONSE", "message", response)))
                      .retrieve()
                      .bodyToMono(Void.class)
                      .block(); // Blocking call to wait for the response
