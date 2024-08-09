@@ -19,7 +19,7 @@ public class WebHookServiceImpl implements WebHookService {
 
     private static final Logger logger = LoggerFactory.getLogger(WebHookServiceImpl.class);
     private final FacebookService facebookService;
-    @Value("${config.verify_token}")
+    @Value("${facebook.verify-token}")
     private String verifyToken;
 
 

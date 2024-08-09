@@ -1,9 +1,9 @@
 package com.ries.redfoodbot.service.impl;
 
+import com.ries.redfoodbot.config.FacebookConfig;
 import com.ries.redfoodbot.service.FacebookService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -17,15 +17,11 @@ public class FacebookServiceImpl implements FacebookService {
     private static final Logger logger = LoggerFactory.getLogger(FacebookServiceImpl.class);
 
     private final WebClient webClient;
+    private final FacebookConfig facebookConfig;
 
-    @Value("${config.page_access_token}")
-    private String pageAccessToken;
-
-    public FacebookServiceImpl(WebClient.Builder webClientBuilder) {
-        String facebookApiBaseUrl = "https://graph.facebook.com";
-        String facebookApiVersion = "v20.0";
-        String facebookPageId = "me";
-        this.webClient = webClientBuilder.baseUrl(String.format("%s/%s/%s", facebookApiBaseUrl, facebookApiVersion, facebookPageId))
+    public FacebookServiceImpl(WebClient.Builder webClientBuilder, FacebookConfig facebookConfig) {
+        this.facebookConfig = facebookConfig;
+        this.webClient = webClientBuilder.baseUrl(String.format("%s/%s/%s", this.facebookConfig.getApiBaseUrl(), this.facebookConfig.getApiVersion(), this.facebookConfig.getPageId()))
                                          .build();
     }
 
@@ -34,7 +30,7 @@ public class FacebookServiceImpl implements FacebookService {
         try {
             webClient.post()
                      .uri(uriBuilder -> uriBuilder.path("/messages")
-                                                  .queryParam("access_token", pageAccessToken)
+                                                  .queryParam("access_token", this.facebookConfig.getPageAccessToken())
                                                   .build())
                      .body(BodyInserters.fromValue(Map.of("recipient", Map.of("id", senderPsId), "messaging_type", "RESPONSE", "message", response)))
                      .retrieve()
