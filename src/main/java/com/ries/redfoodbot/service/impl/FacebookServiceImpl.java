@@ -27,9 +27,6 @@ public class FacebookServiceImpl implements FacebookService {
     @Value("${config.facebook_page_id}")
     private String facebookPageId;
 
-    @Value("${config.facebook_message_path}")
-    private String facebookMessagePath;
-
     @Value("${config.page_access_token}")
     private String pageAccessToken;
 
@@ -45,7 +42,7 @@ public class FacebookServiceImpl implements FacebookService {
     public void sendResponseToUser(String senderPsId, Map<String, Object> response) {
         try {
             webClient.post()
-                     .uri(uriBuilder -> uriBuilder.path(facebookMessagePath)
+                     .uri(uriBuilder -> uriBuilder.path("/message")
                                                   .queryParam("access_token", pageAccessToken)
                                                   .build())
                      .body(BodyInserters.fromValue(Map.of(
