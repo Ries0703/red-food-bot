@@ -42,11 +42,7 @@ public class FacebookServiceImpl implements FacebookService {
                                                .path(facebookMessageUri)
                                                .queryParam("access_token", pageAccessToken)
                                                .build();
-                         try {
-                             logger.info(build.toURL().toExternalForm());
-                         } catch (MalformedURLException e) {
-                             throw new RuntimeException(e);
-                         }
+                         logger.info(build.toString());
                          return build;
                      })
                      .body(BodyInserters.fromValue(Map.of("recipient", Map.of("id", senderPsId), "messaging_type", "RESPONSE", "message", response)))
