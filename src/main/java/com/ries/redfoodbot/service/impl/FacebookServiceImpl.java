@@ -56,6 +56,8 @@ public class FacebookServiceImpl implements FacebookService {
             logger.info("Message sent!");
         } catch (WebClientResponseException e) {
             logger.error("Unable to send message: {}", e.getResponseBodyAsString());
+            logger.error("Status code: {}", e.getStatusCode());
+            logger.error("Response headers: {}", e.getHeaders());
         } catch (Exception e) {
             logger.error("Unable to send message: {}", (Object) e.getStackTrace());
         }
