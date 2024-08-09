@@ -33,7 +33,7 @@ public class FacebookServiceImpl implements FacebookService {
     public void sendResponseToUser(String senderPsId, Map<String, Object> response) {
         try {
             webClient.post()
-                     .uri(uriBuilder -> uriBuilder.path("/message")
+                     .uri(uriBuilder -> uriBuilder.path("/messages")
                                                   .queryParam("access_token", pageAccessToken)
                                                   .build())
                      .body(BodyInserters.fromValue(Map.of("recipient", Map.of("id", senderPsId), "messaging_type", "RESPONSE", "message", response)))
