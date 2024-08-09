@@ -9,7 +9,6 @@ import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 
-import java.net.MalformedURLException;
 import java.util.Map;
 
 @Service
@@ -19,41 +18,50 @@ public class FacebookServiceImpl implements FacebookService {
 
     private final WebClient webClient;
 
+    @Value("${config.facebook_api_base_url}")
+    private String facebookApiBaseUrl;
+
+    @Value("${config.facebook_api_version}")
+    private String facebookApiVersion;
+
+    @Value("${config.facebook_page_id}")
+    private String facebookPageId;
+
+    @Value("${config.facebook_message_path}")
+    private String facebookMessagePath;
+
     @Value("${config.page_access_token}")
     private String pageAccessToken;
 
-    @Value("${config.facebook_messenger_uri}")
-    private String facebookMessageUri;
-
-    @Value("${config.facebook_api_host}")
-    private String facebookApiHost;
-
-
     public FacebookServiceImpl(WebClient.Builder webClientBuilder) {
-        this.webClient = webClientBuilder.build();
+        this.webClient = webClientBuilder.baseUrl(String.format("%s/%s/%s",
+                                                 facebookApiBaseUrl,
+                                                 facebookApiVersion,
+                                                 facebookPageId))
+                                         .build();
     }
 
     @Override
     public void sendResponseToUser(String senderPsId, Map<String, Object> response) {
         try {
             webClient.post()
-                     .uri(uriBuilder -> {
-                         var build = uriBuilder.host(facebookApiHost)
-                                               .path(facebookMessageUri)
-                                               .queryParam("access_token", pageAccessToken)
-                                               .build();
-                         logger.info(build.toString());
-                         return build;
-                     })
-                     .body(BodyInserters.fromValue(Map.of("recipient", Map.of("id", senderPsId), "messaging_type", "RESPONSE", "message", response)))
+                     .uri(uriBuilder -> uriBuilder.path(facebookMessagePath)
+                                                  .queryParam("access_token", pageAccessToken)
+                                                  .build())
+                     .body(BodyInserters.fromValue(Map.of(
+                             "recipient", Map.of("id", senderPsId),
+                             "messaging_type", "RESPONSE",
+                             "message", response
+                     )))
                      .retrieve()
                      .bodyToMono(Void.class)
                      .block(); // Blocking call to wait for the response
-            System.out.println("Message sent!");
+            logger.info("Message sent!");
         } catch (WebClientResponseException e) {
             logger.error("Unable to send message: {}", e.getResponseBodyAsString());
         } catch (Exception e) {
-            logger.error("Unable to send message: {}", e.getMessage());
+            logger.error("Unable to send message: {}", (Object) e.getStackTrace());
         }
     }
 }
+
