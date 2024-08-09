@@ -9,11 +9,9 @@ import org.springframework.web.context.request.WebRequest;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
-
     @ExceptionHandler(Exception.class)
     public ResponseEntity<?> handleAllException(Exception exception) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                              .build();
     }
-
 }
