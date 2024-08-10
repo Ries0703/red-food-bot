@@ -40,9 +40,39 @@ public class FacebookServiceImpl implements FacebookService {
         } catch (WebClientResponseException e) {
             logger.error("Unable to send message: {}", e.getResponseBodyAsString());
             logger.error("Status code: {}", e.getStatusCode());
-            logger.error("Response headers: {}", e.getHeaders());
         } catch (Exception e) {
             logger.error("Unable to send message: {}", (Object) e.getStackTrace());
+        }
+    }
+
+    // Method to send typing action
+    @Override
+    public void sendTypingAction(String senderPsId, String action) {
+        try {
+            // Construct the request body
+            Map<String, Object> requestBody = Map.of(
+                    "recipient", Map.of("id", senderPsId),
+                    "sender_action", action
+            );
+
+            logger.info("Sending {} action to sender {}", action, senderPsId);
+
+            // Send the request
+            webClient.post()
+                     .uri(uriBuilder -> uriBuilder.path("/messages")
+                                                  .queryParam("access_token", facebookConfig.getPageAccessToken())
+                                                  .build())
+                     .body(BodyInserters.fromValue(requestBody))
+                     .retrieve()
+                     .bodyToMono(Void.class)
+                     .block(); // Blocking call to wait for the response
+
+            logger.info("Sent {} action!", action);
+        } catch (WebClientResponseException e) {
+            logger.error("Unable to send message: {}", e.getResponseBodyAsString());
+            logger.error("Status code: {}", e.getStatusCode());
+        } catch (Exception e) {
+            logger.error("Unable to send {} action: {}", action, e.getMessage());
         }
     }
 }
